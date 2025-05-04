@@ -8,7 +8,7 @@
 // Question 0
 // Include the challenge.h header file
 //-------------------------------------------------------------------------
-
+#include "challenge.h"
 
 //-------------------------------------------------------------------------
 // Question 1
@@ -16,7 +16,8 @@
 // respectively. The value of `q1A` should be initialized to 0 and the value 
 // of `q1B`should be initialized to 1.
 //-------------------------------------------------------------------------
-
+int q1A = 0;
+int q1B = 1;
 
 //-------------------------------------------------------------------------
 // Question 2
@@ -25,6 +26,8 @@
 // named `Q2_ARRAY_SIZE`.
 //-------------------------------------------------------------------------
 
+#define Q2_ARRAY_SIZE 10
+int q2Array[Q2_ARRAY_SIZE];
 
 //-------------------------------------------------------------------------
 // Question 3
@@ -37,7 +40,13 @@
 //          The function should return 0b0001001101100101
 //-------------------------------------------------------------------------
 uint16_t q3(uint8_t x, uint8_t y) {
-
+    uint16_t z;
+    uint8_t mask = 0b10000001;
+    x = x^mask;
+    z = x << 8;
+    z += y;
+    return z;
+    
 }
 
 //-------------------------------------------------------------------------
@@ -51,10 +60,17 @@ uint16_t q3(uint8_t x, uint8_t y) {
 // Note: The array contains 8-bit unsigned integers.
 //-------------------------------------------------------------------------
 int32_t q4(uint8_t * array, uint32_t arrayLength) {
-    for (uint8_t i = 0; i <= arrayLength; i++) {
-        int32_t sum = 0;
+    
+    if (array==NULL) {
+        return -1;
+    }
+
+    int32_t sum = 0;
+    for (int i = 0; i < arrayLength; i++) {
         sum += array[i];
     }
+    return sum;
+    
 }
 
 //-------------------------------------------------------------------------
@@ -64,6 +80,10 @@ int32_t q4(uint8_t * array, uint32_t arrayLength) {
 // - uint16_t b
 //-------------------------------------------------------------------------
 
+typedef union {
+    uint32_t a;
+    uint16_t b;
+} q5_t;
 
 //-------------------------------------------------------------------------
 // Question 6
@@ -73,6 +93,10 @@ int32_t q4(uint8_t * array, uint32_t arrayLength) {
 // - uint16_t y
 //-------------------------------------------------------------------------
 
+typedef struct {
+    uint32_t x;
+    uint16_t y;
+} q6_t;
 
 //-------------------------------------------------------------------------
 // Question 7
@@ -82,13 +106,17 @@ int32_t q4(uint8_t * array, uint32_t arrayLength) {
 // - FAIL = 1
 //-------------------------------------------------------------------------
 
+typedef enum {
+    SUCCESS,
+    FAIL
+} error_t;
 
 //-------------------------------------------------------------------------
 // Question 8
 // Define a macro called `MULTIPLY` that takes two parameters and multiplies
 // them together. The macro should return the result.
 //-------------------------------------------------------------------------
-
+#define MULTIPLY(a,b) ((a)*(b))
 
 //-------------------------------------------------------------------------
 // Question 9
@@ -102,7 +130,14 @@ int32_t q4(uint8_t * array, uint32_t arrayLength) {
 // Now, x = 10 and y = 5
 //-------------------------------------------------------------------------
 int q9(int *a, int *b) {
+    if (a == NULL || b == NULL) {
+        return -1;
+    }
 
+    int temp_a= *a;
+    *a = *b;
+    *b = temp_a;
+    return 0;
 }
 
 //-------------------------------------------------------------------------
@@ -120,7 +155,15 @@ typedef struct {
 } q10_t;
 
 error_t q10(q10_t *q10) {
-
+    int error = q9(&(q10->a),&(q10->b));
+    error_t errorlog;
+    if (error == 0) {
+        errorlog = SUCCESS;
+    } else {
+        errorlog = FAIL;
+    }
+    
+    return errorlog;
 }
 
 //-------------------------------------------------------------------------
@@ -143,7 +186,13 @@ typedef struct {
 } q11_b_t;
 
 error_t q11(q11_a_t *a, q11_b_t *b){
-
+    error_t error = SUCCESS;
+    if (a == NULL || b == NULL) {
+        error = FAIL;
+        return error;
+    }
+    memcpy(b->array+1,a->array,50*sizeof(uint16_t));
+    return error;
 }
 
 //-------------------------------------------------------------------------
@@ -151,6 +200,8 @@ error_t q11(q11_a_t *a, q11_b_t *b){
 // Define a macro called `MIN` that takes two parameters and finds the
 // lesser value of the 2. The macro should return the result.
 //-------------------------------------------------------------------------
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 //-------------------------------------------------------------------------
 // Question 13
@@ -162,12 +213,21 @@ error_t q11(q11_a_t *a, q11_b_t *b){
 //-------------------------------------------------------------------------
 
 void *q13(uint32_t *ptr1, uint16_t *ptr2){
+    char * a1 = (void *)ptr1;
+    char * b1 = (void *)ptr2;
+    a1 += 5;
+    b1+=5;
 
+    void * a = a1;
+    void* b = b1;
+    return MIN(a,b);
 }
+
 //-------------------------------------------------------------------------
 // The following function is used to test your code. Do not remove any 
 // existing code. You may add additional tests if you wish.
 //-------------------------------------------------------------------------
+
 int main(void) {
     // Question 0 Test
     ASSERT(0 == 0);
@@ -199,7 +259,7 @@ int main(void) {
     ASSERT(q3(0b10010010, 0b01100101) == 0b0001001101100101);
     ASSERT(q3(3, 3) == 33283);
     ASSERT(q3(0x0, 0x0) == 0x8100);
-
+    
     // Question 4 Test
     uint8_t smallArray[5] = {1, 2, 3, 4, 5};
     uint8_t largeArray[1000] = {1};
@@ -250,6 +310,7 @@ int main(void) {
     ASSERT(q10Test.b == 5);
     ASSERT(q10(NULL) == FAIL);
 
+    // Question 11 Test
     q11_a_t a;
     q11_b_t b;
     for(uint8_t i = 0; i < 50; ++i){
@@ -260,17 +321,18 @@ int main(void) {
     ASSERT(q11(&a, NULL) == FAIL);
     ASSERT(q11(NULL, &b));
 
+    // Question 12 Test
     ASSERT(MIN(2, 4) == 2);
     ASSERT(MIN(2.1, 2.2) == 2.1);
     ASSERT(MIN(52, 2) == 2);
     ASSERT(MIN(5, 5) == 5);
 
+   // Question 13 Test
     uint32_t *ptr1 = (uint32_t *) 0x10;
     uint16_t *ptr2 = (uint16_t *) 0x12;
     ASSERT(q13(ptr1, ptr2) == (void *)0x15);
     ptr1 = (uint32_t *) 0x3129;
     ptr2 = (uint16_t *) 0x3124;
     ASSERT(q13(ptr1, ptr2) == (void *)0x3129);
-
     return 0;
 }
